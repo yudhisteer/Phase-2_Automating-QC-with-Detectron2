@@ -32,6 +32,10 @@
 
 ### 3. Mouse Click Measurement
 
+![image](https://user-images.githubusercontent.com/59663734/138279616-bd3b0eb7-3b8c-4926-a26c-27e42aea0a87.png)
+
+
+
 ### 4. Data Labeling
 
 ![image](https://user-images.githubusercontent.com/59663734/138276005-f09a4b4f-9e8c-4559-980a-7dd8d2c3ea61.png)
