@@ -59,13 +59,11 @@ from matplotlib import pyplot as plt
 ```
 
 
-
-
 ```
 img = cv.imread('polo.jpg',0)
 img_blur = cv.GaussianBlur(img,(3,3), sigmaX=0, sigmaY=0)
 edges = cv.Canny(img_blur,100,200)
-plt.subplot(121),plt.imshow(img,cmap = 'gray')
+plt.subplot(121),plt.imshow(img_blur,cmap = 'gray')
 plt.title('Original Image'), plt.xticks([]), plt.yticks([])
 plt.subplot(122),plt.imshow(edges,cmap = 'gray')
 plt.title('Edge Image'), plt.xticks([]), plt.yticks([])
@@ -78,7 +76,15 @@ From the Canny Edge Detector, we can clearly see the outline of our garment. The
 
 ### 2. Harris Corner Deteciton
 
-The idea behind the Harris method is to detect points based on the intensity variation in a local neighborhood: a small region around the feature should show a large intensity change when compared with windows shifted in any direction.
+Harris method is to detect points based on the intensity variation in a local neighborhood. It is a mathematical way to show which windows shows a large variations when moved in any direction. 
+
+Commonly, Harris corner detector algorithm can be divided into five steps.
+
+1. Color to grayscale
+2. Spatial derivative calculation
+3. Structure tensor setup
+4. Harris response calculation
+5. Non-maximum suppression
 
 ```
 img = cv2.imread(r"shirt.jpg")
@@ -86,23 +92,81 @@ img = cv2.resize(img, (0,0),None, 0.2, 0.2)
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 gray = np.float32(gray)
 dst = cv2.cornerHarris(gray,2,3,0.04)
-#result is dilated for marking the corners, not important
+# Dilate corner image to enhance corner points
 dst = cv2.dilate(dst,None)
-# Threshold for an optimal value, it may vary depending on the image.
+# This value vary depending on the image and how many corners you want to detect
 img[dst>0.01*dst.max()]=[0,0,255]
 cv2.imshow('dst',img)
 if cv2.waitKey(0) & 0xff == 27:
     cv2.destroyAllWindows()
 ```
+Unfortunately with the Harris Corner Detector, we get more points besides the corners. In some parts of the pictures, the corners are not even detected. The quality of the image and the background also is a factor to be taken into consideration. However, our measurements depend on the distance between two points and it will be hard for us to decipher which points is the corner points among all these points.
 
 ![image](https://user-images.githubusercontent.com/59663734/138276853-2aa2b45f-bc9f-48ab-b4d1-ab110c894f35.png)
 
-Even a close-up of a sleeve shows that not only the contours are detected. Wherever there is a stark contrast between two segments of the image the algo classifies it as a corner. This would be very inconvenient for our object measurement model as we would have a 
+Even a close-up of a sleeve shows that not only the contours are detected. Wherever there is a stark contrast between two segments of the image, the algorithm classifies it as a corner. This would be very inconvenient for our object measurement model as we would have a series of points and not 2 points signifying two corners. 
+
 ![image](https://user-images.githubusercontent.com/59663734/138276896-46cd44d3-bff2-4b09-a320-01a86edc905f.png)
 
-
+From the two image processing techniques - Canny Edge Detection and Harris Corner Detection - we can conclude that it will not be reliable for us to get the measurmeents between two keypoints. We need a smarter model that will be able to pinpoint the exact location of the particular areas desired with a high degree of accuracy. Before going into an AI model, I wanted to simulate the pinpoint system. I started with a semi-automatic solution whereby the user would select the two points he would need to measure and the exact distance of the garment will be calculated.
 
 ### 3. Mouse Click Measurement
+
+If using the Canny Edge Detection and Harris Corner Detection algorithms have not been promising, I decided to make the user pinpoints the parts of the garments he would want to measure and the distance will be calculated automatically. This would still greatly optimize the Quality 'Control process as instead of the QC people standing with a tape measure and taking on average 15 measurements, now he would just need to pinpoint using his mouse the different parts of the garment.
+
+```
+def click_event(event, x, y, flags, params):
+    # checking for left mouse clicks
+
+    if event == cv2.EVENT_LBUTTONDOWN:
+        cv2.circle(img,(x,y), 3, (0, 255, 0), -1)
+
+        # displaying the coordinates
+        # on the Shell
+        print("------------------------")
+        print("last x-y: ", x, ' ', y)
+        xcoor.append(x)
+        ycoor.append(y)
+
+        print("xcoor = "+str(xcoor))
+        print("ycoor = " + str(ycoor))
+        x1 = xcoor[-2]
+        x2 = xcoor[-1]
+        y1 = ycoor[-2]
+        y2 = ycoor[-1]
+
+        print("x1 = "+str(x1))
+        print("y1 = "+str(y1))
+        print("x2 = " + str(x2))
+        print("y2 = "+str(y2))
+
+        dis = ((y2 - y1) ** 2 + (x2 - x1) ** 2) ** 0.5
+        dis = abs(dis)
+        #print(dis)
+        print(" ")
+        print("Pixel Distance = " + str(dis) + " px")
+        print(" ")
+        Actual_dis = round(dis * 0.15, 2)
+        print("Actual Length = "+ str(Actual_dis)+ " cm")
+        print(" ")
+
+        # write in cells#
+        global index
+        index +=1
+        print("index = "+str(index))
+        if index ==2:
+            print("Ignoring first input")
+        else:
+            sheet.update_cell(index-1, 2, Actual_dis)
+
+        # displaying the coordinates
+        # on the image window
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(img, str(x) + ',' +
+                    str(y), (x, y), font,
+                    0.5, (255, 50, 0), 2)
+        cv2.imshow('image', img)
+```
 
 ![image](https://user-images.githubusercontent.com/59663734/138279616-bd3b0eb7-3b8c-4926-a26c-27e42aea0a87.png)
 
@@ -129,3 +193,4 @@ Even a close-up of a sleeve shows that not only the contours are detected. Where
 ## References
 
 1. https://learnopencv.com/edge-detection-using-opencv/
+2. https://medium.com/data-breach/introduction-to-harris-corner-detector-32a88850b3f6
