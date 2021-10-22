@@ -168,6 +168,8 @@ def click_event(event, x, y, flags, params):
         cv2.imshow('image', img)
 ```
 
+With the xand y coordinates of the points stored in a list, the distance was calculated using the euclidean distance formula: d = √[(x2 – x1)2 + (y2 – y1)2]
+
 ![image](https://user-images.githubusercontent.com/59663734/138279616-bd3b0eb7-3b8c-4926-a26c-27e42aea0a87.png)
 
 
