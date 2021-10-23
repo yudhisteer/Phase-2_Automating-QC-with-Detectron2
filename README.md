@@ -1,4 +1,4 @@
-# Phase-2_Automating-QC-with-Detectron2
+# Phase-2: Automating QC with Detectron2
 
 ## Abstract
 
