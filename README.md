@@ -6,6 +6,8 @@
 
 Different clients require different types of measurement. For the purpose of this project, I chose to automate the quality control process for T-shirts only. Some clients require staright line measurement between 2 points and others require the length of a curvature or even some require the length of two legs of a 90 degrees triangle of a curve part. Below is a How to measure? sheet in a tech pack which shows the process of taking measurements:
 
+Below is the **How to measure?** sheet for Adidas T-Shirt that is provided in the tech pack when an order is placed.
+
 ![image](https://user-images.githubusercontent.com/59663734/138277860-7666599e-9d3e-4e52-81ec-ac22a76b9622.png)
 
 ### AQL
