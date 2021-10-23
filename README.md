@@ -194,6 +194,22 @@ The manual measurement system using OpenCV would greatly optimize the QC process
 
 ### 4. Data Labeling
 
+```
+<View>
+	<Image name="image" value="$image" zoom="true" zoomControl="true"/>
+	<KeyPointLabels name="keypoints" toName="image"
+		strokewidth="2" opacity="1" >
+		<Label value="left_sleeve_1" background="red"/>
+		<Label value="left_sleeve_2" background="yellow"/>
+		<Label value="right_sleeve_1" background="pink"/>
+		<Label value="right_sleeve_2" background="blue"/>
+	</KeyPointLabels>
+	<RectangleLabels name="bbox" toName="image">
+		<Label value="Shirt" background="green"/>
+	</RectangleLabels>
+</View>
+```
+
 ![image](https://user-images.githubusercontent.com/59663734/138276005-f09a4b4f-9e8c-4559-980a-7dd8d2c3ea61.png)
 
 
