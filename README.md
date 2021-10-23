@@ -194,6 +194,8 @@ The manual measurement system using OpenCV would greatly optimize the QC process
 
 ### 4. Data Labeling
 
+We will need to build a Keypoint Detection algorithm hence, we start by collecting data - images of t-shirts - scrapped from the Shein website using an RPA. To label the images, I made use of **label-studio** and used the script below to generate the labels that would be used.
+
 ```
 <View>
 	<Image name="image" value="$image" zoom="true" zoomControl="true"/>
@@ -209,8 +211,16 @@ The manual measurement system using OpenCV would greatly optimize the QC process
 	</RectangleLabels>
 </View>
 ```
+For the sake of building a POC(Proof of Concept), I decided to build a keypoint model that would be able to detect the left and right sleeves of the garment. Upon approval by the board at RT Knits, we will then tackle the other measurements.
+
+The label values are: ```left_sleeve_1, left_sleeve_2, right_sleeve_1, right_sleeve_2```. We will also need a bounding box ```Shirt``` that will be used to detect the position of the shirt in the image. 
 
 ![image](https://user-images.githubusercontent.com/59663734/138276005-f09a4b4f-9e8c-4559-980a-7dd8d2c3ea61.png)
+
+About 180 pictures were downloaded and labelled. 20% of them were transferred in the ```test``` folder and the rest in the ```train``` folder. After labelling, the downloaded format of the data is in ```json```. However, in order to train our model we will need to convert our ```json``` file into ```COCO``` format. 
+
+
+### 5. JSON to COCO
 
 
 ### 5. Build Detectron2 model
