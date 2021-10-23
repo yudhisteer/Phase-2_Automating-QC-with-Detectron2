@@ -29,10 +29,11 @@ An AQL result of 1.5 accepts the statistical probability that there are less tha
 2. Harris Corner Deteciton
 3. Mouse Click Measurement
 4. Data Labeling
-5. Build Detectron2 model
-6. Train the model
-7. Inference
-8. Metrics
+5. JSON to COCO
+6. Build Detectron2 model
+7. Train the model
+8. Inference
+9. Metrics
 
 Before diving straight into an AI model, I wanted to explore some image processing techniques that would allow me to pick the best model for object measurements. I started with the simplest of all: Canny Edge Detection and then moved on to Corner Detection.
 
@@ -219,17 +220,65 @@ The label values are: ```left_sleeve_1, left_sleeve_2, right_sleeve_1, right_sle
 
 About 180 pictures were downloaded and labelled. 20% of them were transferred in the ```test``` folder and the rest in the ```train``` folder. After labelling, the downloaded format of the data is in ```json```. However, in order to train our model we will need to convert our ```json``` file into ```COCO``` format. 
 
-
 ### 5. JSON to COCO
 
+We start dy importing the necessary libraries:
 
-### 5. Build Detectron2 model
+```
+import json
+import itertools
+import cv2
+import os
+```
 
-### 6. Train the model
+We will need the path of our ```train``` folder. I also created two empty lists: ```annotations``` and ```images``` that will be used to iterate inside a ```for``` loop to get the image id and the value of the coordinates of the keypoints and bounding box. 
 
-### 7. Inference
+```
+DATA_DIR = ROOT_DIR+'train' #train images folder
+annotations = []
+images = []
+```
 
-### 8. Metrics
+```
+with open(ROOT_DIR+'labels/data.json') as f: #data.json is the output of label-studio
+    d = json.load(f)
+    for i, obj in enumerate(d):
+        filename = obj['file_upload'].split('-', 1)[1]
+        if not os.path.isfile(os.path.join(DATA_DIR, filename)):
+            continue
+        im = cv2.imread(os.path.join(DATA_DIR, filename))
+        height, width, channels = im.shape
+        
+        image = {'id': i, 'file_name': filename, 'height': height, 'width': width}
+        
+        annotation = {'id':i, 'image_id':i, 'num_keypoints': 4, "category_id": 1}
+        keypoints = {'left_sleeve_1': [],'left_sleeve_2': [],'right_sleeve_1': [],'right_sleeve_2': []} #keypoints
+        for result in obj['annotations'][0]['result']:
+            value = result['value']
+            if result['type'] =='rectanglelabels':
+                annotation['bbox'] = [round(value['x']/ 100.0 * width), round(value['y']/ 100.0 * height), round(value['width']/ 100.0 * width), round(value['height']/ 100.0 * height)]
+            else:
+                keypoints[value['keypointlabels'][0]] = [round(value['x']/ 100.0 * width), round(value['y']/ 100.0 * height), 2]
+        annotation['keypoints'] = list(itertools.chain(*keypoints.values()))
+        annotations.append(annotation)
+        images.append(image)
+        
+categories = [{'id': 1, 'name': 'shirt', 'keypoints': ['left_sleeve_1', 'left_sleeve_2', 'right_sleeve_1', 'right_sleeve_2']}] # keypoints
+        
+final_annotations = {'images': images, 'annotations': annotations, 'categories':categories}
+with open(ROOT_DIR+'labels/data_coco.json', 'w') as f: #data_coco.json is converted labels
+    json.dump(final_annotations, f)
+```
+
+We save our converted labels into ```data_coco.json```.
+
+### 6. Build Detectron2 model
+
+### 7. Train the model
+
+### 8. Inference
+
+### 9. Metrics
 
 
 ## Next Step
