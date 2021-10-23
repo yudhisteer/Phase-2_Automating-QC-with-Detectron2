@@ -114,6 +114,23 @@ From the two image processing techniques - Canny Edge Detection and Harris Corne
 
 If using the Canny Edge Detection and Harris Corner Detection algorithms have not been promising, I decided to make the user pinpoints the parts of the garments he would want to measure and the distance will be calculated automatically. This would still greatly optimize the Quality 'Control process as instead of the QC people standing with a tape measure and taking on average 15 measurements, now he would just need to pinpoint using his mouse the different parts of the garment.
 
+We start by crating two lists: ```xcoor``` and ```ycoor```. they both have an initial value of zero. When the user will pinpoint on the image, the x and y values of that point will be stored in the lists created.
+
+```
+index = 1
+xcoor = [0]
+ycoor = [0]
+```
+
+We have a function called ```click_event``` which checks for left mouse clicks from her user. If so, it creates a small green dot on the image using ```cv2.circle(img,(x,y), 3, (0, 255, 0), -1)``` at the x and y coordinates it has been pointed. 
+
+When pinpointing two points on the image, we have 2 x coordinates: ```x1``` and ```x2``` and two y coordinates ```y1``` and ```y2```. We select them by their indexes and append them into the initial lists created.
+
+The Euclidean Distance between the two points is calculated using ```dis = ((y2 - y1) ** 2 + (x2 - x1) ** 2) ** 0.5```. This is the distance in pixel. If we need to get the actual measurement of a part of the garment, we need to convert our pixel values into mm or cm. A scaling factor of 0.15 is used for the conversion: ```Actual_dis = round(dis * 0.15, 2)```
+
+The actual distance need to be saved in a nexcel sheet. The google sheet API has been used to directly populate a template in real-time using ```Actual_dis = round(dis * 0.15, 2)```.
+
+
 ```
 def click_event(event, x, y, flags, params):
     # checking for left mouse clicks
@@ -168,10 +185,11 @@ def click_event(event, x, y, flags, params):
         cv2.imshow('image', img)
 ```
 
-With the xand y coordinates of the points stored in a list, the distance was calculated using the euclidean distance formula: d = √[(x2 – x1)2 + (y2 – y1)2]
+With the x and y coordinates of the points stored in a list, the distance was calculated using the euclidean distance formula: d = √[(x2 – x1)^2 + (y2 – y1)^2]
 
 ![image](https://user-images.githubusercontent.com/59663734/138279616-bd3b0eb7-3b8c-4926-a26c-27e42aea0a87.png)
 
+The manual measurement system using OpenCV would greatly optimize the QC process and reduce the measuring time of the garments. We tested the model and indeed it was moreefficient than the DeepSpeech solution. However, we wanted a fully end-to-end automated system. We need a system with very little to no human intervention and with a high degree of accuracy(tolerance of ± 10 mm) for taking the measurements.
 
 
 ### 4. Data Labeling
