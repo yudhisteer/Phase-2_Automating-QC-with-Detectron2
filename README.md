@@ -222,7 +222,7 @@ About 180 pictures were downloaded and labelled. 20% of them were transferred in
 
 ### 5. JSON to COCO
 
-We start dy importing the necessary libraries:
+We start by importing the necessary libraries:
 
 ```
 import json
@@ -238,6 +238,7 @@ DATA_DIR = ROOT_DIR+'train' #train images folder
 annotations = []
 images = []
 ```
+The script below does the conversion into ```COCO``` format:
 
 ```
 with open(ROOT_DIR+'labels/data.json') as f: #data.json is the output of label-studio
@@ -273,6 +274,35 @@ with open(ROOT_DIR+'labels/data_coco.json', 'w') as f: #data_coco.json is conver
 We save our converted labels into ```data_coco.json```.
 
 ### 6. Build Detectron2 model
+
+(What is detectron2?)
+
+We start by important some libraries and detectron2 utilities:
+
+```
+import numpy as np
+import matplotlib.pyplot as plt
+# import some common libraries
+import os, json, cv2, random
+#from google.colab.patches import cv2_imshow
+
+# import some common detectron2 utilities
+from detectron2 import model_zoo
+from detectron2.config import get_cfg
+from detectron2.utils.visualizer import Visualizer
+from detectron2.data import MetadataCatalog, DatasetCatalog
+from detectron2.structures import BoxMode
+from detectron2.engine import DefaultTrainer
+from detectron2.utils.logger import setup_logger
+
+from detectron2.data import (MetadataCatalog,
+                             build_detection_train_loader,
+                             build_detection_test_loader,
+                             DatasetMapper, transforms as T,
+                             detection_utils as utils)
+setup_logger()
+```
+
 
 ### 7. Train the model
 
