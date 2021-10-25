@@ -358,7 +358,7 @@ for d in random.sample(dataset_dicts, 5):
 ![image](https://user-images.githubusercontent.com/59663734/138676901-d9d46043-4174-4150-b5e9-9f42d8aa6bc2.png)
 
 ### 7. Train the model
-Now we need to configure our model. From Model Zoo, we will choose ```Keypoint RCNN 101 - FPN 3x```. We choose an epoch of ```10``` and use a batch size of ```2```. 
+Now we need to configure our model. From Model Zoo, we will choose ```Keypoint RCNN 101 - FPN 3x```. We choose an epoch of ```10```, a batch size of ```2``` and a learning rate of ```0.0008```. 
 
 ```
 # Configs
@@ -430,6 +430,9 @@ for d in random.sample(dataset_dicts, 5):
     cv2_imshow(v.get_image()[:, :, ::-1])
 ```
 
+![image](https://user-images.githubusercontent.com/59663734/138698483-0fd58b88-e7e3-4d87-82b9-e6ced89c9b9b.png)
+
+
 Then we can run the inference on our ```testing``` folder:
 
 ```
@@ -444,6 +447,8 @@ for img in glob.glob(FOLDER_PATH+"*.jpg"):
     plt.imshow(cv2.cvtColor(v.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB))
     plt.show()
 ```
+![image](https://user-images.githubusercontent.com/59663734/138698723-4c3412ca-9d65-465d-9e98-8e71e31cbda6.png)
+
 
 ### 9. Metrics
 
