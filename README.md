@@ -31,7 +31,7 @@ An AQL result of 1.5 accepts the statistical probability that there are less tha
 2. Harris Corner Deteciton
 3. Mouse Click Measurement
 4. Data Labeling
-5. JSON to COCO
+5. Convert to COCO format
 6. Build Detectron2 model
 7. Train the model
 8. Inference
@@ -356,6 +356,20 @@ for d in random.sample(dataset_dicts, 5):
 ```
 
 ![image](https://user-images.githubusercontent.com/59663734/138676901-d9d46043-4174-4150-b5e9-9f42d8aa6bc2.png)
+
+I also defined a function ```build_train_loader``` which contains some data augmentation techniques which varies the **brightness**, **contrast** and **saturation** to better train our model:
+
+```
+    def build_train_loader(cls, cfg):
+        is_train = True
+        augs = utils.build_augmentation(cfg, is_train)
+        augs.append(T.RandomBrightness(intensity_min=0.75, intensity_max=1.25)) # some data augmentation for better training
+        augs.append(T.RandomContrast(intensity_min=0.76, intensity_max=1.25))
+        augs.append(T.RandomSaturation(intensity_min=0.75, intensity_max=1.25))
+        if cfg.INPUT.CROP.ENABLED and is_train:
+            augs.insert(0, T.RandomCrop(cfg.INPUT.CROP.TYPE, cfg.INPUT.CROP.SIZE))
+        return build_detection_train_loader(cfg, mapper=DatasetMapper(cfg, True, augmentations= augs))
+```
 
 ### 7. Train the model
 Now we need to configure our model. From Model Zoo, we will choose ```Keypoint RCNN 101 - FPN 3x```. We choose an epoch of ```10```, a batch size of ```2``` and a learning rate of ```0.0008```. 
