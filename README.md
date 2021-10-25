@@ -447,7 +447,9 @@ for img in glob.glob(FOLDER_PATH+"*.jpg"):
     plt.imshow(cv2.cvtColor(v.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB))
     plt.show()
 ```
-![image](https://user-images.githubusercontent.com/59663734/138698723-4c3412ca-9d65-465d-9e98-8e71e31cbda6.png)
+
+![image](https://user-images.githubusercontent.com/59663734/138698934-a23b2532-e93c-40e9-9757-d1b989f56ca8.png)
+
 
 
 ### 9. Metrics
