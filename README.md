@@ -278,6 +278,10 @@ We save our converted labels into ```data_coco.json```.
 ### 6. Build Detectron2 model
 Detectron2 is an open-source state-of-the-art detection and segmentation algorithms from Facebook AI Research. It can also be used for bounding-box detection, instance and semantic segmentation, and person keypoint detection.
 
+![image](https://user-images.githubusercontent.com/59663734/138677114-125b1723-3a81-4ab4-a6aa-149ad4fcba89.png)
+
+For our case, we will configure the **keypoint detection model** to detect the sleeves of a garment. 
+
 We start by important some libraries and detectron2 utilities:
 
 ```
@@ -353,11 +357,93 @@ for d in random.sample(dataset_dicts, 5):
 
 ![image](https://user-images.githubusercontent.com/59663734/138676901-d9d46043-4174-4150-b5e9-9f42d8aa6bc2.png)
 
-
-
 ### 7. Train the model
+Now we need to configure our model. From Model Zoo, we will choose ```Keypoint RCNN 101 - FPN 3x```. We choose an epoch of ```10``` and use a batch size of ```2```. 
+
+```
+# Configs
+EPOCHS = 10 #set epochs
+BATCH_SIZE = 2 # set batch size, for 8gb gpu 2 is ok.
+
+train_dataset_dicts = DatasetCatalog.get("shirt_train")
+
+cfg = get_cfg()
+#cfg.MODEL.DEVICE = "cpu"
+cfg.OUTPUT_DIR = ROOT_DIR + cfg.OUTPUT_DIR
+cfg.merge_from_file(model_zoo.get_config_file("COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x.yaml"))
+cfg.DATASETS.TRAIN = ("shirt_train",) # pass here the dataset we register above
+
+cfg.DATASETS.TEST = ()  #Dataset 'bat_test' is empty 
+#cfg.DATASETS.TEST = ()
+
+cfg.DATALOADER.NUM_WORKERS = 4
+cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Keypoints/keypoint_rcnn_R_101_FPN_3x.yaml")
+
+cfg.SOLVER.IMS_PER_BATCH = BATCH_SIZE
+cfg.SOLVER.BASE_LR = 0.0008  # pick a good LR
+cfg.SOLVER.MAX_ITER = len(train_dataset_dicts) // BATCH_SIZE * EPOCHS   # MAX_ITER = total images / batch size * epochs
+cfg.SOLVER.CHECKPOINT_PERIOD = 1000
+cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128   #128 
+
+cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # shirt: how many classes in data
+cfg.MODEL.RETINANET.NUM_CLASSES = 1
+cfg.MODEL.ROI_KEYPOINT_HEAD.NUM_KEYPOINTS = len(keypoint_names)
+cfg.TEST.KEYPOINT_OKS_SIGMAS = tuple(np.ones(len(keypoint_names), dtype=float).tolist())
+
+
+os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
+```
+
+We start training our model:
+
+```
+# Training
+trainer = Trainer(cfg)    #CocoTrainer(cfg)
+trainer.resume_or_load(resume=False)
+trainer.train()
+print("Done!")
+```
 
 ### 8. Inference
+
+After training, the model automatically gets saved into a pth file. This file can then be used to load the model and make predictions.
+
+```
+#We are using the pre-trained Detectron2 model, as shown below.
+cfg.MODEL.DEVICE = "cuda"
+cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")  # path to the model we just trained
+cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.4 # set a custom testing threshold
+predictor = DefaultPredictor(cfg)
+
+def cv2_imshow(im):
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    plt.figure(figsize=(25,7.5)), plt.imshow(im), plt.axis('off');
+    plt.show()
+    
+for d in random.sample(dataset_dicts, 5):
+    print("Showing " + d['file_name'])
+    img = cv2.imread(d["file_name"])
+    outputs = predictor(img)
+    v = Visualizer(img[:, :, ::-1], metadata=hands_metadata, scale=1)    # remove the colors of unsegmented pixels
+    v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+    
+    cv2_imshow(v.get_image()[:, :, ::-1])
+```
+
+Then we can run the inference on our ```testing``` folder:
+
+```
+FOLDER_PATH = ROOT_DIR + 'test/'
+predictor = DefaultPredictor(cfg)
+for img in glob.glob(FOLDER_PATH+"*.jpg"):
+    im = cv2.imread(img)
+    outputs = predictor(im)
+    v = Visualizer(im[:, :, ::-1], metadata=metadata, scale=1)    # remove the colors of unsegmented pixels
+    v = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+    plt.figure(figsize = (14, 10))
+    plt.imshow(cv2.cvtColor(v.get_image()[:, :, ::-1], cv2.COLOR_BGR2RGB))
+    plt.show()
+```
 
 ### 9. Metrics
 
@@ -370,3 +456,4 @@ for d in random.sample(dataset_dicts, 5):
 
 1. https://learnopencv.com/edge-detection-using-opencv/
 2. https://medium.com/data-breach/introduction-to-harris-corner-detector-32a88850b3f6
+3. https://gilberttanner.com/blog/detectron2-train-a-instance-segmentation-model
