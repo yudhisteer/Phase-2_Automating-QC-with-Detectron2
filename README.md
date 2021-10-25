@@ -35,7 +35,7 @@ An AQL result of 1.5 accepts the statistical probability that there are less tha
 6. Build Detectron2 model
 7. Train the model
 8. Inference
-9. Metrics
+9. Evaluation
 
 Before diving straight into an AI model, I wanted to explore some image processing techniques that would allow me to pick the best model for object measurements. I started with the simplest of all: Canny Edge Detection and then moved on to Corner Detection.
 
@@ -464,9 +464,7 @@ for img in glob.glob(FOLDER_PATH+"*.jpg"):
 
 ![image](https://user-images.githubusercontent.com/59663734/138698934-a23b2532-e93c-40e9-9757-d1b989f56ca8.png)
 
-
-
-### 9. Metrics
+### 9. Evaluation
 
 
 ## Next Step
@@ -478,3 +476,4 @@ for img in glob.glob(FOLDER_PATH+"*.jpg"):
 1. https://learnopencv.com/edge-detection-using-opencv/
 2. https://medium.com/data-breach/introduction-to-harris-corner-detector-32a88850b3f6
 3. https://gilberttanner.com/blog/detectron2-train-a-instance-segmentation-model
+4. https://github.com/facebookresearch/detectron2/blob/main/MODEL_ZOO.md
