@@ -222,7 +222,7 @@ The label values are: ```left_sleeve_1, left_sleeve_2, right_sleeve_1, right_sle
 
 About 180 pictures were downloaded and labelled. 20% of them were transferred in the ```test``` folder and the rest in the ```train``` folder. After labelling, the downloaded format of the data is in ```json```. However, in order to train our model we will need to convert our ```json``` file into ```COCO``` format. 
 
-### 5. JSON to COCO
+### 5. Convert to COCO format.
 
 We start by importing the necessary libraries:
 
@@ -276,8 +276,7 @@ with open(ROOT_DIR+'labels/data_coco.json', 'w') as f: #data_coco.json is conver
 We save our converted labels into ```data_coco.json```.
 
 ### 6. Build Detectron2 model
-
-(What is detectron2?)
+Detectron2 is an open-source state-of-the-art detection and segmentation algorithms from Facebook AI Research. It can also be used for bounding-box detection, instance and semantic segmentation, and person keypoint detection.
 
 We start by important some libraries and detectron2 utilities:
 
@@ -304,6 +303,56 @@ from detectron2.data import (MetadataCatalog,
                              detection_utils as utils)
 setup_logger()
 ```
+As we are using a custom data-set with Detectron2's pre-built data loader, we will need to register our dataset so as Detectron2 knows how to obtain the dataset.
+Since our dataset is already in COCO format, we just need to call the ```register_coco_instances``` method and pass in the dataset name, the path to the json file, and the image directory path.
+
+```
+from detectron2.data.datasets import register_coco_instances
+#register_coco_instances("my_dataset_train", {}, "json_annotation_train.json", "path/to/image/dir")
+register_coco_instances("shirt_train", {}, ROOT_DIR+"labels/data_coco.json", ROOT_DIR+"train") #shirt_train - model name
+```
+
+We create two lists: ```keypoint_names``` which contains the names of our labels: ```'left_sleeve_1', 'left_sleeve_2', 'right_sleeve_1', 'right_sleeve_2'``` and ```keypoint_flip_map``` which is used during training to map our keypoints when the image is flipped along the y-axis.  
+
+```
+keypoint_names = ['left_sleeve_1', 'left_sleeve_2', 'right_sleeve_1', 'right_sleeve_2'] #keypoints 
+keypoint_flip_map = [('left_sleeve_1', 'right_sleeve_1'), ('left_sleeve_2', 'right_sleeve_2')] #flip map, it is used during training, when images are horizontal fliped(flipped on y-axis), their keypoints also fliped so we give a map which keypoint will flip with which keypoint
+
+from detectron2.data import MetadataCatalog
+classes = MetadataCatalog.get("shirt_train").thing_classes = ["shirt"]
+print(classes)
+
+MetadataCatalog.get("shirt_train").thing_classes = ["shirt"]
+MetadataCatalog.get("shirt_train").thing_dataset_id_to_contiguous_id = {1:0}
+MetadataCatalog.get("shirt_train").keypoint_names = keypoint_names
+MetadataCatalog.get("shirt_train").keypoint_flip_map = keypoint_flip_map
+MetadataCatalog.get("shirt_train").evaluator_type="coco"
+```
+
+We then show some random images from our dataset to ensure that our dataset has well been registered:
+
+```
+# here we display random images from dataset
+import random
+from detectron2.utils.visualizer import Visualizer
+dataset_dicts = DatasetCatalog.get("shirt_train")
+hands_metadata = MetadataCatalog.get("shirt_train")
+def cv2_imshow(im):
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    plt.figure(figsize = (14, 10))
+    plt.figure(), plt.imshow(im), plt.axis('off');
+    
+for d in random.sample(dataset_dicts, 5):
+    print("Showing " + d['file_name'])
+    img = cv2.imread(d["file_name"])
+    visualizer = Visualizer(img[:, :, ::-1], metadata=hands_metadata, scale=1)   
+    vis = visualizer.draw_dataset_dict(d)
+    plt.figure(figsize = (14, 10))
+    cv2_imshow(vis.get_image()[:, :, ::-1])
+```
+
+![image](https://user-images.githubusercontent.com/59663734/138676901-d9d46043-4174-4150-b5e9-9f42d8aa6bc2.png)
+
 
 
 ### 7. Train the model
