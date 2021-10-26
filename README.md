@@ -2,6 +2,8 @@
 
 ## Abstract
 
+In this project, I intend to automate the QC Department which is responsible to take measurements of the garments. The current process involves manual measurement using a tape measure. I started with a POC to be able to detect the left and right sleeves of a T-shirt. In this analysis using Detectron2, 3 out of 4 keypoints were accurately predicted. The x and y coordinates were stored and the length of the sleeves can be calculated using the Euclidean Distance.  However, in order to make better predictions and predict all the other keypoints in a garment, I intend to create my own custom dataset and perfom the labeling.  
+
 ## How to measure?
 
 Different clients require different types of measurement. For the purpose of this project, I chose to automate the quality control process for T-shirts only. Some clients require staright line measurement between 2 points and others require the length of a curvature or even some require the length of two legs of a 90 degrees triangle of a curve part. Below is a How to measure? sheet in a tech pack which shows the process of taking measurements:
@@ -35,6 +37,7 @@ An AQL result of 1.5 accepts the statistical probability that there are less tha
 6. Build Detectron2 model
 7. Train the model
 8. Inference
+9. Evaluation
 
 Before diving straight into an AI model, I wanted to explore some image processing techniques that would allow me to pick the best model for object measurements. I started with the simplest of all: Canny Edge Detection and then moved on to Corner Detection.
 
@@ -468,6 +471,11 @@ for img in glob.glob(FOLDER_PATH+"*.jpg"):
 The first POC of the system was presented in October 2021. We can see from the inference on the image that the keypoints were predicted quite accurately. Only the keypoint ```right_sleeve_1``` was predicted 3 to 5 pixels to the right than the actual position it should be. The reason for this is that there is not enough **padding** in the image. When using a ```3x3``` kernel with a stride of ```1```, the filter does not cover the whole image along the x-axis. With more padding, we should be able to produce better predictions. 
 
 ![image](https://user-images.githubusercontent.com/59663734/138826032-fac4b899-17e0-4ae2-9226-f1f43e77d89a.png)
+
+The x and y coordinates of the keypoints are stored and can be used to calculate the length of the sleeves using the Euclidean Distance Formula: d = √[(x2 – x1)2 + (y2 – y1)2].
+
+![image](https://user-images.githubusercontent.com/59663734/138829456-56a6baea-a77b-4de4-9870-86e71a6e8059.png)
+
 
 ## Next Step
 
