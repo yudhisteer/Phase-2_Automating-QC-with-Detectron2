@@ -420,7 +420,7 @@ print("Done!")
 
 ### 8. Inference
 
-After training, the model automatically gets saved into a pth file. This file can then be used to load the model and make predictions.
+After training, the model gets saved into a pth file. This file can then be used to load the model and make predictions.
 
 ```
 #We are using the pre-trained Detectron2 model, as shown below.
@@ -466,10 +466,19 @@ for img in glob.glob(FOLDER_PATH+"*.jpg"):
 
 ### 9. Evaluation
 
+The first POC of the system was presented in October 2021. We can see from the inference on the image that the keypoints were predicted quite accurately. Only the keypoint ```right_sleeve_1``` was predicted 3 to 5 pixels to the right than the actual position it should be. The reason for this is that there is not enough **padding** in the image. When using a ```3x3``` kernel with a stride of ```1```, the filter does not cover the whole image along the x-axis. With more padding, we should be able to produce better predictions. 
+
+![image](https://user-images.githubusercontent.com/59663734/138825777-2e4cdbef-9ff5-4814-b253-8abb2c658301.png)
 
 ## Next Step
 
-## Conclusion
+My next step would be to create my own training set instead of downloading pictures from the internet. I am currently working with the Design Department to have pictures of garments(T-shirts) taken. This would enable me to create a better training data and I also need to have pictures of front and back of the garments taken.
+
+It is important to have the pictures of shirts of different brands because we will need to calculate measurements for the logo in front:
+
+![Uploading image.png…]()
+
+
 
 ## References
 
