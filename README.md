@@ -35,7 +35,6 @@ An AQL result of 1.5 accepts the statistical probability that there are less tha
 6. Build Detectron2 model
 7. Train the model
 8. Inference
-9. Evaluation
 
 Before diving straight into an AI model, I wanted to explore some image processing techniques that would allow me to pick the best model for object measurements. I started with the simplest of all: Canny Edge Detection and then moved on to Corner Detection.
 
@@ -468,16 +467,31 @@ for img in glob.glob(FOLDER_PATH+"*.jpg"):
 
 The first POC of the system was presented in October 2021. We can see from the inference on the image that the keypoints were predicted quite accurately. Only the keypoint ```right_sleeve_1``` was predicted 3 to 5 pixels to the right than the actual position it should be. The reason for this is that there is not enough **padding** in the image. When using a ```3x3``` kernel with a stride of ```1```, the filter does not cover the whole image along the x-axis. With more padding, we should be able to produce better predictions. 
 
-![image](https://user-images.githubusercontent.com/59663734/138825777-2e4cdbef-9ff5-4814-b253-8abb2c658301.png)
+![image](https://user-images.githubusercontent.com/59663734/138826032-fac4b899-17e0-4ae2-9226-f1f43e77d89a.png)
 
 ## Next Step
 
-My next step would be to create my own training set instead of downloading pictures from the internet. I am currently working with the Design Department to have pictures of garments(T-shirts) taken. This would enable me to create a better training data and I also need to have pictures of front and back of the garments taken.
+My next step would be to accurately predict all the other 15 measurements for a T-shirt. I intend to proceed as followed:
+
+1. Create custom dataset for each type of garment
+2. Data Labeling
+3. Create Detectron2 model
+4. Inference
+5. Create workflow for ML in production
+
+I am currently working with the Design Department to have pictures of garments(T-shirts) taken. This would enable me to create a better training data and I also need to have pictures of front and back of the garments taken.
 
 It is important to have the pictures of shirts of different brands because we will need to calculate measurements for the logo in front:
 
-![Uploading image.png…]()
+![image](https://user-images.githubusercontent.com/59663734/138825777-2e4cdbef-9ff5-4814-b253-8abb2c658301.png)
 
+For the curve measurments of the collar, I propose the solution below:
+
+![image](https://user-images.githubusercontent.com/59663734/138827209-ed7fb20b-693a-491c-86fa-14075ee61422.png)
+
+At the end, our goal will be to fully automate the AC Department with little human intervention. A proposed workflow would be as such:
+
+![image](https://user-images.githubusercontent.com/59663734/138827466-a18dc72b-3558-4ebd-abb7-4c5a26d93892.png)
 
 
 ## References
