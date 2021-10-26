@@ -7,6 +7,8 @@ In the first phase of the project, I started with automating the process of meas
 
 However using DeepSpeech I could only automate the second part - Data Entry. In order to optimize the whole workflow, it is important to automate both the process of taking measurements and data entry. A solution for this would be to use Computer Vision to take the necessary measurements. 
 
+First phase: https://github.com/yudhisteer/Phase-1_Automating-QC-with-DeepSpeech
+
 ## Abstract
 
 In this project, I intend to automate the QC Department which is responsible to take measurements of the garments. The current process involves manual measurement using a tape measure. I started with a POC to be able to detect the left and right sleeves of a T-shirt. In this analysis using Detectron2, 3 out of 4 keypoints were accurately predicted. The x and y coordinates were stored and the length of the sleeves can be calculated using the Euclidean Distance.  However, in order to make better predictions and predict all the other keypoints in a garment, I intend to create my own custom dataset and perfom the labeling.  
